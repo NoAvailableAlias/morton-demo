@@ -56,7 +56,7 @@ static void search(PT Min,
     auto start = std::lower_bound(begin, end, min, morton<PT>());
     auto stop  = std::upper_bound(start, end, max, morton<PT>());
 
-    for (PT point : Range(start, stop))
+    for (PT point : Range(start, stop)) // hotspot #1
     {
         if (point > min && point < max)
         {
@@ -83,9 +83,14 @@ void DemoState::updateBackground()
         for (std::size_t y = 0; y < yMax; ++y)
         {
             auto i = x * yMax + y;
-            backgroundPoints.buffer[i] = Point{{ x, y }};
-            backgroundColors.buffer[i] = Color{{ 0.0f, 0.f,
-                toRange(i, 0, sMax, 0.2f, 1.0f) }};
+
+            backgroundPoints.buffer[i][0] = x;
+            backgroundPoints.buffer[i][1] = y;
+
+            //backgroundColors.buffer[i][0] = 0.0f;
+            //backgroundColors.buffer[i][1] = 0.0f;
+            backgroundColors.buffer[i][2] =
+                toRange(i, 0, sMax, 0.2f, 1.0f);
         }
     }
     std::sort(backgroundPoints.buffer.begin(),
@@ -151,9 +156,11 @@ void DemoState::updateTick()
 
         hatchAreaColors.buffer.resize(size);
 
-        for (Color& color : hatchAreaColors.buffer)
+        for (Color& color : hatchAreaColors.buffer) // hotspot #2
         {
-            color = Color{{ toRange(i++, 0, size, 0.1f, 1.0f), 0.0f, 0.0f }};
+            color[0] = toRange(i++, 0, size, 0.1f, 1.0f);
+            //color[1] = 0.0f;
+            //color[2] = 0.0f;
         }
     }
     {
@@ -162,9 +169,11 @@ void DemoState::updateTick()
 
         searchedColors.buffer.resize(size);
 
-        for (Color& color : searchedColors.buffer)
+        for (Color& color : searchedColors.buffer) // hotspot #3
         {
-            color = Color{{ 0.0f, toRange(i++, 0, size, 0.1f, 1.0f), 0.0f }};
+            //color[0] = 0.0f;
+            color[1] = toRange(i++, 0, size, 0.1f, 1.0f);
+            //color[2] = 0.0f;
         }
     }
     updateHatchArea();
