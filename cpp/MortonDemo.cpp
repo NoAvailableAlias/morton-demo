@@ -247,5 +247,14 @@ void MortonDemo::mainLoop()
     {
         std::cerr << error.what() << std::endl;
     }
+    glDeleteBuffers(1, &state.backgroundColors.vboID);
+    glDeleteBuffers(1, &state.backgroundPoints.vboID);
+
+    glDeleteBuffers(1, &state.hatchAreaColors.vboID);
+    glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
+
+    glDeleteBuffers(1, &state.searchedColors.vboID);
+    glDeleteBuffers(1, &state.searchedPoints.vboID);
+
     glfwTerminate();
 }

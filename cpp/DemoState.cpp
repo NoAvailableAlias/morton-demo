@@ -169,4 +169,6 @@ void DemoState::updateTick()
     }
     updateHatchArea();
     updateSearched();
+
+    keyChanged = false;
 }

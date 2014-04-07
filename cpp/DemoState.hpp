@@ -25,7 +25,7 @@ class DemoState
 
     template <typename T> struct VboWrapper
     {
-        std::uint32_t vboID;
+        std::uint32_t vboID = 0;
         std::vector<T> buffer;
 
         std::size_t size() const
