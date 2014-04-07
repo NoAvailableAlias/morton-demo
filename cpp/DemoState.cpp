@@ -87,8 +87,6 @@ void DemoState::updateBackground()
             backgroundPoints.buffer[i][0] = x;
             backgroundPoints.buffer[i][1] = y;
 
-            //backgroundColors.buffer[i][0] = 0.0f;
-            //backgroundColors.buffer[i][1] = 0.0f;
             backgroundColors.buffer[i][2] =
                 toRange(i, 0, sMax, 0.2f, 1.0f);
         }
@@ -159,8 +157,6 @@ void DemoState::updateTick()
         for (Color& color : hatchAreaColors.buffer) // hotspot #2
         {
             color[0] = toRange(i++, 0, size, 0.1f, 1.0f);
-            //color[1] = 0.0f;
-            //color[2] = 0.0f;
         }
     }
     {
@@ -171,9 +167,7 @@ void DemoState::updateTick()
 
         for (Color& color : searchedColors.buffer) // hotspot #3
         {
-            //color[0] = 0.0f;
             color[1] = toRange(i++, 0, size, 0.1f, 1.0f);
-            //color[2] = 0.0f;
         }
     }
     updateHatchArea();

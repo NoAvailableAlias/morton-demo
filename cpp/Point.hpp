@@ -14,8 +14,7 @@
   #endif
 #endif
 
-using Point2i = std::array<std::uint32_t, 2>;
-using Point = Point2i;
+using Point = std::array<std::uint32_t, 2>;
 
 #define USE_PREMATURE_OPTIMIZATION
 
