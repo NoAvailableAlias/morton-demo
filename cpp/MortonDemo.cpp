@@ -104,7 +104,7 @@ void MortonDemo::displayFps() const
     if (1000000 < std::chrono::duration_cast<Micro>
         (std::chrono::high_resolution_clock::now() - delta).count())
     {
-        std::string title("Morton Order Demo [running @] ");
+        std::string title("Morton Order Demo : ");
         title += std::to_string(fps) + " FPS";
         glfwSetWindowTitle(state.window, title.c_str());
         delta = std::chrono::high_resolution_clock::now();
@@ -242,19 +242,21 @@ void MortonDemo::mainLoop()
             }
             glfwPollEvents();
         }
+        glDeleteBuffers(1, &state.backgroundColors.vboID);
+        glDeleteBuffers(1, &state.backgroundPoints.vboID);
+
+        glDeleteBuffers(1, &state.hatchAreaColors.vboID);
+        glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
+
+        glDeleteBuffers(1, &state.searchedColors.vboID);
+        glDeleteBuffers(1, &state.searchedPoints.vboID);
+
+        glfwTerminate();
     }
     catch (std::exception const& error)
     {
         std::cerr << error.what() << std::endl;
+
+        glfwTerminate();
     }
-    glDeleteBuffers(1, &state.backgroundColors.vboID);
-    glDeleteBuffers(1, &state.backgroundPoints.vboID);
-
-    glDeleteBuffers(1, &state.hatchAreaColors.vboID);
-    glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
-
-    glDeleteBuffers(1, &state.searchedColors.vboID);
-    glDeleteBuffers(1, &state.searchedPoints.vboID);
-
-    glfwTerminate();
 }
