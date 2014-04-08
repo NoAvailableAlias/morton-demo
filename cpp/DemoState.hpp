@@ -42,6 +42,8 @@ class DemoState
     bool keyPressed;
     bool keyChanged;
 
+    bool bigminFlag;
+
     GLFWwindow* window;
 
     VboWrapper<Color> backgroundColors;

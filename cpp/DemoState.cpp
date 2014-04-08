@@ -17,14 +17,6 @@ static float toRange(std::size_t X, std::size_t A, std::size_t B, float C, float
 {
     return (X - A) / (float)(B - A) * (D - C) + C;
 }
-bool operator< (Point const& lhs, Point const& rhs)
-{
-    return lhs[0] < rhs[0] and lhs[1] < rhs[1];
-}
-bool operator> (Point const& lhs, Point const& rhs)
-{
-    return lhs[0] > rhs[0] and lhs[1] > rhs[1];
-}
 template <typename Iterator> struct RangeHelper
 {
     Iterator lhs;
@@ -39,6 +31,51 @@ template <typename Iterator>
 static RangeHelper<Iterator> Range(Iterator lhs, Iterator rhs)
 {
     if (lhs <= rhs) return { lhs, rhs }; return { rhs, lhs };
+}
+template <typename PT>
+static void bigsrc(PT Min,
+                   PT Max,
+                   std::vector<PT> const& points,
+                   std::vector<PT>& missed,
+                   std::vector<PT>& retval)
+{
+    PT min = { std::min(Min[0], Max[0]), std::min(Min[1], Max[1]) };
+    PT max = { std::max(Min[0], Max[0]), std::max(Min[1], Max[1]) };
+
+    auto begin = points.cbegin();
+    auto end   = points.cend();
+
+    auto start = std::lower_bound(begin, end, min, morton<PT>());
+    auto stop  = std::upper_bound(start, end, max, morton<PT>());
+
+    for (PT big; start < stop; ) // horrible failure
+    {
+        PT const& point = (*start);
+
+        if (point[0] >= min[0] && point[1] >= min[1] &&
+            point[0] <= max[0] && point[1] <= max[1])
+        {
+            retval.emplace_back(point);
+            //++start;
+        }
+        else
+        {
+            missed.emplace_back(point);
+            big = bigmin<PT>(min, max, point);
+            start = std::lower_bound(start, stop, big, morton<PT>());
+            /*
+            missed.emplace_back(point);
+            big = bigmin<PT>(min, max, point);
+            auto temp = std::lower_bound(start, stop, big, morton<PT>());
+            if (*temp == big)
+            {
+                start = temp;
+                retval.emplace_back(big);
+            }
+            */
+        }
+        ++start;
+    }
 }
 template <typename PT>
 static void search(PT Min,
@@ -56,15 +93,16 @@ static void search(PT Min,
     auto start = std::lower_bound(begin, end, min, morton<PT>());
     auto stop  = std::upper_bound(start, end, max, morton<PT>());
 
-    for (PT point : Range(start, stop)) // hotspot #1
+    for (PT point : Range(start, stop))
     {
-        if (point > min && point < max)
+        if (point[0] >= min[0] && point[1] >= min[1] &&
+            point[0] <= max[0] && point[1] <= max[1])
         {
-            retval.emplace_back(point);
+            retval.emplace_back(point); // hotspot #1 b
         }
         else
         {
-            missed.emplace_back(point);
+            missed.emplace_back(point); // hotspot #1 a
         }
     }
 }
@@ -145,9 +183,18 @@ void DemoState::updateTick()
     searchedColors.buffer.clear();
     searchedPoints.buffer.clear();
 
-    search<Point>(min, max, backgroundPoints.buffer,
-                            hatchAreaPoints.buffer,
-                            searchedPoints.buffer);
+    if (bigminFlag) // select which algorithm to use
+    {
+        bigsrc<Point>(min, max, backgroundPoints.buffer,
+                                hatchAreaPoints.buffer,
+                                searchedPoints.buffer);
+    }
+    else
+    {
+        search<Point>(min, max, backgroundPoints.buffer,
+                                hatchAreaPoints.buffer,
+                                searchedPoints.buffer);
+    }
     {
         std::size_t size = hatchAreaPoints.buffer.size();
         std::size_t i = 0;

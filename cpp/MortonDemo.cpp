@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <exception>
+#include <stdexcept>
 #include <iostream>
 #include <chrono>
 #include <string>
@@ -150,6 +150,12 @@ void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int
             windowSizeCallback(state.window, 512, 512);
             glfwSetWindowSize(state.window, 512, 512);
         }
+    break;
+        case GLFW_MOUSE_BUTTON_4: // toggle bigmin alg
+        if (action == GLFW_PRESS)
+        {
+            state.bigminFlag = !state.bigminFlag;
+        }
     }
     state.keyChanged = true;
 }
@@ -182,14 +188,14 @@ void MortonDemo::initializeDemo()
 
     if (!glfwInit())
     {
-        throw std::exception("glfwInit failed");
+        throw std::runtime_error("glfwInit failed");
     }
     state.window = glfwCreateWindow(windowSize[0],
         windowSize[1], "", NULL, NULL);
 
     if (state.window == nullptr)
     {
-        throw std::exception("glfwCreateWindow failed");
+        throw std::runtime_error("glfwCreateWindow failed");
     }
     glfwSwapInterval(1);
     glfwMakeContextCurrent(state.window);
@@ -198,7 +204,7 @@ void MortonDemo::initializeDemo()
     {
         std::cerr << glewGetErrorString(fail) << std::endl;
 
-        throw std::exception("glewInit failed");
+        throw std::runtime_error("glewInit failed");
     }
     glGenBuffers(1, &state.backgroundColors.vboID);
     glGenBuffers(1, &state.backgroundPoints.vboID);
@@ -238,7 +244,11 @@ void MortonDemo::mainLoop()
             }
             else // yield cpu resources
             {
+#ifdef _MSC_VER
                 std::this_thread::sleep_for(Micro(10000));
+#else
+                usleep(10000);
+#endif
             }
             glfwPollEvents();
         }
@@ -253,9 +263,24 @@ void MortonDemo::mainLoop()
 
         glfwTerminate();
     }
+    catch (std::runtime_error const& error)
+    {
+        std::cerr << error.what() << std::endl;
+
+        glfwTerminate();
+    }
     catch (std::exception const& error)
     {
         std::cerr << error.what() << std::endl;
+
+        glDeleteBuffers(1, &state.backgroundColors.vboID);
+        glDeleteBuffers(1, &state.backgroundPoints.vboID);
+
+        glDeleteBuffers(1, &state.hatchAreaColors.vboID);
+        glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
+
+        glDeleteBuffers(1, &state.searchedColors.vboID);
+        glDeleteBuffers(1, &state.searchedPoints.vboID);
 
         glfwTerminate();
     }
