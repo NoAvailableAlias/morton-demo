@@ -33,7 +33,7 @@ static RangeHelper<Iterator> Range(Iterator lhs, Iterator rhs)
     if (lhs <= rhs) return { lhs, rhs }; return { rhs, lhs };
 }
 template <typename PT>
-static void bigsrc(PT Min,
+static void bigalg(PT Min,
                    PT Max,
                    std::vector<PT> const& points,
                    std::vector<PT>& missed,
@@ -185,7 +185,7 @@ void DemoState::updateTick()
 
     if (bigminFlag) // select which algorithm to use
     {
-        bigsrc<Point>(min, max, backgroundPoints.buffer,
+        bigalg<Point>(min, max, backgroundPoints.buffer,
                                 hatchAreaPoints.buffer,
                                 searchedPoints.buffer);
     }
