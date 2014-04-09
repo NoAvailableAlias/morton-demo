@@ -47,7 +47,7 @@ static void bigalg(PT Min,
     auto start = std::lower_bound(begin, end, min, morton<PT>());
     auto stop  = std::upper_bound(start, end, max, morton<PT>());
 
-    while (start < stop)
+    while (start != stop)
     {
         PT const& point = *start;
 
