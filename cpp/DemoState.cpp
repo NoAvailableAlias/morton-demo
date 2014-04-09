@@ -1,8 +1,6 @@
 #include "DemoState.hpp"
 #include "Point.hpp"
 
-#define GLEW_STATIC
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -28,14 +26,15 @@ template <typename Iterator> struct RangeHelper
     Iterator end() const { return rhs; }
 };
 template <typename Iterator>
-static RangeHelper<Iterator> Range(Iterator lhs, Iterator rhs)
+static RangeHelper<Iterator> Range(Iterator lhs,
+                                   Iterator rhs)
 {
-    if (lhs <= rhs) return { lhs, rhs }; return { rhs, lhs };
+    return { lhs, rhs };
 }
 template <typename PT>
 static void bigalg(PT Min,
                    PT Max,
-                   std::vector<PT> const& points,
+                   std::vector<PT>& points,
                    std::vector<PT>& missed,
                    std::vector<PT>& retval)
 {
@@ -48,39 +47,28 @@ static void bigalg(PT Min,
     auto start = std::lower_bound(begin, end, min, morton<PT>());
     auto stop  = std::upper_bound(start, end, max, morton<PT>());
 
-    for (PT big; start < stop; ) // horrible failure
+    while (start < stop)
     {
-        PT const& point = (*start);
+        PT const& point = *start;
 
         if (point[0] >= min[0] && point[1] >= min[1] &&
             point[0] <= max[0] && point[1] <= max[1])
         {
             retval.emplace_back(point);
-            //++start;
+            ++start;
         }
         else
         {
             missed.emplace_back(point);
-            big = bigmin<PT>(min, max, point);
-            start = std::lower_bound(start, stop, big, morton<PT>());
-            /*
-            missed.emplace_back(point);
-            big = bigmin<PT>(min, max, point);
-            auto temp = std::lower_bound(start, stop, big, morton<PT>());
-            if (*temp == big)
-            {
-                start = temp;
-                retval.emplace_back(big);
-            }
-            */
+            start = std::lower_bound(start, stop,
+                bigmin<PT>(min, max, point), morton<PT>());
         }
-        ++start;
     }
 }
 template <typename PT>
 static void search(PT Min,
                    PT Max,
-                   std::vector<PT> const& points,
+                   std::vector<PT>& points,
                    std::vector<PT>& missed,
                    std::vector<PT>& retval)
 {
@@ -183,7 +171,7 @@ void DemoState::updateTick()
     searchedColors.buffer.clear();
     searchedPoints.buffer.clear();
 
-    if (bigminFlag) // select which algorithm to use
+    if (bigminFlag)
     {
         bigalg<Point>(min, max, backgroundPoints.buffer,
                                 hatchAreaPoints.buffer,
