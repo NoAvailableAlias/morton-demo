@@ -3,6 +3,8 @@
 
 #include "DemoState.hpp"
 
+#include <memory>
+
 // ApEk,
 // NoAvailableAlias
 // this code is public domain
@@ -12,6 +14,7 @@ struct GLFWwindow;
 class MortonDemo
 {
     DemoState state;
+    std::shared_ptr<void> clean; // RAII cleanup code
 
     void drawBackground() const;
     void drawHatchArea() const;

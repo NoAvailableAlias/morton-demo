@@ -3,15 +3,11 @@
 
 #include "Point.hpp"
 
-#include <cstdint>
 #include <vector>
-#include <array>
 
 // ApEk,
 // NoAvailableAlias
 // this code is public domain
-
-using Color = std::array<float, 3>;
 
 struct GLFWwindow;
 
@@ -25,7 +21,7 @@ class DemoState
 
     template <typename T> struct VboWrapper
     {
-        std::uint32_t vboID = 0;
+        PointElement vboID =0;
         std::vector<T> buffer;
 
         std::size_t size() const
@@ -34,17 +30,17 @@ class DemoState
         }
     };
 
-    Point pressPos;
-    Point cursorPos;
-    Point releasePos;
+    Point pressPos = {{}};
+    Point cursorPos = {{}};
+    Point releasePos = {{}};
     Point windowSize = {{ 512, 512 }};
 
-    bool keyPressed;
-    bool keyChanged;
+    bool keyPressed = false;
+    bool keyChanged = false;
 
-    bool bigminFlag;
+    bool bigminFlag = false;
 
-    GLFWwindow* window;
+    GLFWwindow* window = nullptr;
 
     VboWrapper<Color> backgroundColors;
     VboWrapper<Point> backgroundPoints;

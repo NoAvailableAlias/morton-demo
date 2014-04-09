@@ -1,16 +1,19 @@
 #include "MortonDemo.hpp"
 #include "Point.hpp"
 
-#define GLEW_STATIC
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
 #include <iostream>
 #include <chrono>
+#include <memory>
 #include <string>
 #include <thread>
+
+#ifndef _MSC_VER
+  #include <unistd.h> // MinGW workaround
+#endif
 
 // ApEk,
 // NoAvailableAlias
@@ -86,9 +89,9 @@ void MortonDemo::demoDoDraw() const
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     {
-        drawBackground();
-        drawHatchArea();
-        drawSearched();
+        drawBackground(); // GL_STATIC_DRAW
+        drawHatchArea(); // GL_DYNAMIC_DRAW
+        drawSearched(); // GL_DYNAMIC_DRAW
     }
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
@@ -115,16 +118,15 @@ void MortonDemo::displayFps() const
 
 void MortonDemo::windowSizeIndirect(GLFWwindow* w, int width, int height)
 {
-    Point& windowSize = state.windowSize;
-    windowSize = Point{{ width, height }};
+    state.windowSize[0] = static_cast<PointElement>(width);
+    state.windowSize[1] = static_cast<PointElement>(height);
 
     state.resetState();
 
-    glViewport(0, 0, windowSize[0], windowSize[1]);
-
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, windowSize[0], windowSize[1], 0, 0, 1);
+    glOrtho(0, width, height, 0, 0, 1);
     glMatrixMode(GL_MODELVIEW);
 }
 void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int mods)
@@ -144,25 +146,25 @@ void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int
             state.keyPressed = false;
         }
     break;
-        case GLFW_MOUSE_BUTTON_2: // reset window size
+        case GLFW_MOUSE_BUTTON_2: // toggle bigmin alg
+        if (action == GLFW_PRESS)
+        {
+            state.bigminFlag = !state.bigminFlag;
+        }
+    break;
+        case GLFW_MOUSE_BUTTON_4: // reset window size
         if (action == GLFW_PRESS)
         {
             windowSizeCallback(state.window, 512, 512);
             glfwSetWindowSize(state.window, 512, 512);
-        }
-    break;
-        case GLFW_MOUSE_BUTTON_4: // toggle bigmin alg
-        if (action == GLFW_PRESS)
-        {
-            state.bigminFlag = !state.bigminFlag;
         }
     }
     state.keyChanged = true;
 }
 void MortonDemo::cursorPositionIndirect(GLFWwindow* w, double x, double y)
 {
-    state.cursorPos[0] = static_cast<std::uint32_t>(x);
-    state.cursorPos[1] = static_cast<std::uint32_t>(y);
+    state.cursorPos[0] = static_cast<PointElement>(x);
+    state.cursorPos[1] = static_cast<PointElement>(y);
     state.keyChanged = true;
 }
 
@@ -190,8 +192,8 @@ void MortonDemo::initializeDemo()
     {
         throw std::runtime_error("glfwInit failed");
     }
-    state.window = glfwCreateWindow(windowSize[0],
-        windowSize[1], "", NULL, NULL);
+    state.window = glfwCreateWindow(
+        windowSize[0], windowSize[1], "", NULL, NULL);
 
     if (state.window == nullptr)
     {
@@ -215,11 +217,26 @@ void MortonDemo::initializeDemo()
     glGenBuffers(1, &state.searchedColors.vboID);
     glGenBuffers(1, &state.searchedPoints.vboID);
 
-    glfwSetWindowUserPointer(state.window, this);
+    clean = std::shared_ptr<void>(this, [](void* ptr) // RAII :D
+    {
+        MortonDemo* self = static_cast<MortonDemo*>(ptr);
 
+        glDeleteBuffers(1, &self->state.backgroundColors.vboID);
+        glDeleteBuffers(1, &self->state.backgroundPoints.vboID);
+
+        glDeleteBuffers(1, &self->state.hatchAreaColors.vboID);
+        glDeleteBuffers(1, &self->state.hatchAreaPoints.vboID);
+
+        glDeleteBuffers(1, &self->state.searchedColors.vboID);
+        glDeleteBuffers(1, &self->state.searchedPoints.vboID);
+
+        glfwTerminate();
+    });
+    glfwSetWindowUserPointer(state.window, this);
     glfwSetCursorPosCallback(state.window, cursorPositionCallback);
     glfwSetWindowSizeCallback(state.window, windowSizeCallback);
     glfwSetMouseButtonCallback(state.window, cursorButtonCallback);
+
     windowSizeCallback(state.window, windowSize[0], windowSize[1]);
 }
 
@@ -247,21 +264,11 @@ void MortonDemo::mainLoop()
 #ifdef _MSC_VER
                 std::this_thread::sleep_for(Micro(10000));
 #else
-                usleep(10000);
+                usleep(10000); // MinGW workaround
 #endif
             }
             glfwPollEvents();
         }
-        glDeleteBuffers(1, &state.backgroundColors.vboID);
-        glDeleteBuffers(1, &state.backgroundPoints.vboID);
-
-        glDeleteBuffers(1, &state.hatchAreaColors.vboID);
-        glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
-
-        glDeleteBuffers(1, &state.searchedColors.vboID);
-        glDeleteBuffers(1, &state.searchedPoints.vboID);
-
-        glfwTerminate();
     }
     catch (std::runtime_error const& error)
     {
@@ -272,16 +279,5 @@ void MortonDemo::mainLoop()
     catch (std::exception const& error)
     {
         std::cerr << error.what() << std::endl;
-
-        glDeleteBuffers(1, &state.backgroundColors.vboID);
-        glDeleteBuffers(1, &state.backgroundPoints.vboID);
-
-        glDeleteBuffers(1, &state.hatchAreaColors.vboID);
-        glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
-
-        glDeleteBuffers(1, &state.searchedColors.vboID);
-        glDeleteBuffers(1, &state.searchedPoints.vboID);
-
-        glfwTerminate();
     }
 }
