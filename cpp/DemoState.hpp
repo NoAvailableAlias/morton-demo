@@ -4,10 +4,13 @@
 #include "Point.hpp"
 
 #include <vector>
+#include <array>
 
 // ApEk,
 // NoAvailableAlias
 // this code is public domain
+
+using Color = std::array<float, 3>;
 
 struct GLFWwindow;
 
