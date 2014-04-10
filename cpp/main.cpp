@@ -12,7 +12,7 @@
 
     Current bugs:
     Depending on the platform vertical bars appear
-        when the window is resized horrizontally? mystery?
+        when the window is resized horizontally? mystery?
     General fixed width discrepancies between 32 / 64 bit architectures.
 
     Enhancements:
@@ -20,7 +20,6 @@
     Optimized CPU hotspots #2 and #3 by elminating unwanted copies.
 
     Notes:
-    CodeXL reports search<>() has ~60% of CPU time.
     Performance seems to be bound by CPU -> GPU transfer rates.
     Preliminary results show bigalg<>() being slower than search<>().
 */
