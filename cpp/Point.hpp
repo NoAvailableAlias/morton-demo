@@ -123,7 +123,7 @@ template <typename PT> PT bigmin(PT const& min, PT const& max, PT const& rhs)
         if (minz & mask) v |= _010_;
         if (maxz & mask) v |= _001_;
 
-        switch (v) // hotspot at 30%
+        switch (v) // hotspot at 46%
         {
             case _001_:
                 retv = usetbit(p, minz);
