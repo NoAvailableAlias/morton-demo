@@ -99,6 +99,8 @@ void MortonDemo::demoDoDraw() const
     draw2dRange();
 }
 
+//------------------------------------------------------------------------------
+
 void MortonDemo::displayFps() const
 {
     static std::chrono::time_point<std::chrono::high_resolution_clock> delta;
@@ -115,6 +117,8 @@ void MortonDemo::displayFps() const
     }
     ++fps;
 }
+
+//------------------------------------------------------------------------------
 
 void MortonDemo::windowSizeIndirect(GLFWwindow* w, int width, int height)
 {
@@ -168,6 +172,8 @@ void MortonDemo::cursorPositionIndirect(GLFWwindow* w, double x, double y)
     state.keyChanged = true;
 }
 
+//------------------------------------------------------------------------------
+
 void MortonDemo::windowSizeCallback(GLFWwindow* w, int width, int height)
 {
     MortonDemo* self = static_cast<MortonDemo*>(glfwGetWindowUserPointer(w));
@@ -183,6 +189,8 @@ void MortonDemo::cursorPositionCallback(GLFWwindow* w, double x, double y)
     MortonDemo* self = static_cast<MortonDemo*>(glfwGetWindowUserPointer(w));
     self->cursorPositionIndirect(w, x, y);
 }
+
+//------------------------------------------------------------------------------
 
 void MortonDemo::initializeDemo()
 {
@@ -239,6 +247,8 @@ void MortonDemo::initializeDemo()
 
     windowSizeCallback(state.window, windowSize[0], windowSize[1]);
 }
+
+//------------------------------------------------------------------------------
 
 void MortonDemo::mainLoop()
 {

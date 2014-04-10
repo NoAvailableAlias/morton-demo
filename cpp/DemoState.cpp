@@ -11,10 +11,6 @@
 // NoAvailableAlias
 // this code is public domain
 
-static float toRange(std::size_t X, std::size_t A, std::size_t B, float C, float D)
-{
-    return (X - A) / (float)(B - A) * (D - C) + C;
-}
 template <typename Iterator> struct RangeHelper
 {
     Iterator lhs;
@@ -31,9 +27,12 @@ static RangeHelper<Iterator> Range(Iterator lhs,
 {
     return { lhs, rhs };
 }
+
+//------------------------------------------------------------------------------
+
 template <typename PT>
-static void bigalg(PT Min,
-                   PT Max,
+static void bigalg(PT const& Min,
+                   PT const& Max,
                    std::vector<PT>& points,
                    std::vector<PT>& missed,
                    std::vector<PT>& retval)
@@ -65,9 +64,12 @@ static void bigalg(PT Min,
         }
     }
 }
+
+//------------------------------------------------------------------------------
+
 template <typename PT>
-static void search(PT Min,
-                   PT Max,
+static void search(PT const& Min,
+                   PT const& Max,
                    std::vector<PT>& points,
                    std::vector<PT>& missed,
                    std::vector<PT>& retval)
@@ -93,6 +95,13 @@ static void search(PT Min,
             missed.emplace_back(point); // hotspot #1 a
         }
     }
+}
+
+//------------------------------------------------------------------------------
+
+float toRange(std::size_t X, std::size_t A, std::size_t B, float C, float D)
+{
+    return (X - A) / (float)(B - A) * (D - C) + C;
 }
 
 void DemoState::updateBackground()
@@ -149,6 +158,8 @@ void DemoState::updateSearched()
         searchedColors.buffer.data(), GL_DYNAMIC_DRAW);
 }
 
+//------------------------------------------------------------------------------
+
 void DemoState::resetState()
 {
     pressPos = {};
@@ -161,6 +172,9 @@ void DemoState::resetState()
     searchedColors.buffer.clear();
     searchedPoints.buffer.clear();
 }
+
+//------------------------------------------------------------------------------
+
 void DemoState::updateTick()
 {
     Point const& min = keyPressed ? cursorPos : pressPos;
