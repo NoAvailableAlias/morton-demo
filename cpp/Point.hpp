@@ -9,13 +9,15 @@
 // this code is public domain
 
 using PointElement = std::uint32_t;
-using Color = std::array<float, 3>;
 using Point = std::array<PointElement, 2>;
+
+#define USE_PREMATURE_OPTIMIZATION
 
 template <typename PT> struct morton
 {
     inline bool operator()(PT const& lhs, PT const& rhs) const
     {
+#ifndef USE_PREMATURE_OPTIMIZATION
         std::size_t x = 0;
         std::size_t j = 0;
 
@@ -30,6 +32,16 @@ template <typename PT> struct morton
             }
         }
         return lhs[j] < rhs[j];
+#else
+        std::size_t x = lhs[0] ^ rhs[0];
+        std::size_t y = lhs[1] ^ rhs[1];
+
+        if ((x < y) && (x < (x ^ y)))
+        {
+            return lhs[1] < rhs[1];
+        }
+        return lhs[0] < rhs[0];
+#endif
     }
 };
 
@@ -76,8 +88,6 @@ std::size_t z_encode(Point p)
 
     for (std::size_t b = 1, m = 1; m != HI_MASK; m <<= 1)
     {
-        //if (x & m) r |= b; b <<= 1;
-        //if (y & m) r |= b; b <<= 1;
         if (y & m) r |= b; b <<= 1;
         if (x & m) r |= b; b <<= 1;
     }
@@ -90,8 +100,6 @@ Point z_decode(std::size_t r)
 
     for (std::size_t b = 1, m = 1; m != HI_MASK; m <<= 1)
     {
-        //if (r & b) x |= m; b <<= 1;
-        //if (r & b) y |= m; b <<= 1;
         if (r & b) y |= m; b <<= 1;
         if (r & b) x |= m; b <<= 1;
     }
@@ -115,7 +123,7 @@ template <typename PT> PT bigmin(PT const& min, PT const& max, PT const& rhs)
         if (minz & mask) v |= _010_;
         if (maxz & mask) v |= _001_;
 
-        switch (v)
+        switch (v) // hotspot at 30%
         {
             case _001_:
                 retv = usetbit(p, minz);
