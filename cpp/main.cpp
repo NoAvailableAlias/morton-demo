@@ -5,7 +5,7 @@
 #endif
 
 /** Dependencies:
-    OpenGL 3.1 support
+    OpenGL 3.2 support
     GLFW 3.0.4 or >
     Glew 1.10 or >
     C++11
@@ -22,6 +22,7 @@
     Notes:
     Performance seems to be bound by CPU -> GPU transfer rates.
     Preliminary results show bigalg<>() being slower than search<>().
+        *However I think performance would be better for higher dimensions.
 */
 
 int main()
