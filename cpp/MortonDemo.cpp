@@ -4,11 +4,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <stdexcept>
-#include <iostream>
+#include <exception>
+#include <fstream>
 #include <chrono>
 #include <memory>
-#include <string>
 #include <thread>
 
 #ifndef _MSC_VER
@@ -20,6 +19,39 @@
 // this code is public domain
 
 using Micro = std::chrono::microseconds;
+
+void MortonDemo::drawHatchArea(ShaderProgram const& shader) const
+{
+    GLint vbo = state.hatchAreaPoints.vboID;
+    auto size = state.hatchAreaPoints.buffer.size();
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    shader.programBegin();
+    {
+        glVertexPointer(2, GL_INT, 0, 0);
+        glDrawArrays(GL_POINTS, 0, size);
+    }
+    shader.programEnd();
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+void MortonDemo::drawSearched(ShaderProgram const& shader) const
+{
+    GLint vbo = state.searchedPoints.vboID;
+    auto size = state.searchedPoints.buffer.size();
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    shader.programBegin();
+    {
+        glVertexPointer(2, GL_INT, 0, 0);
+        glDrawArrays(GL_POINTS, 0, size);
+    }
+    shader.programEnd();
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
 void MortonDemo::drawBackground() const
 {
@@ -89,9 +121,18 @@ void MortonDemo::demoDoDraw() const
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     {
-        drawBackground(); // GL_STATIC_DRAW
-        drawHatchArea(); // GL_DYNAMIC_DRAW
-        drawSearched(); // GL_DYNAMIC_DRAW
+        drawBackground();
+
+        if (state.useShaders)
+        {
+            drawHatchArea(hatchAreaShader);
+            drawSearched(searchedShader);
+        }
+        else
+        {
+            drawHatchArea();
+            drawSearched();
+        }
     }
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
@@ -122,8 +163,8 @@ void MortonDemo::displayFps() const
 
 void MortonDemo::windowSizeIndirect(GLFWwindow* w, int width, int height)
 {
-    state.windowSize[0] = static_cast<PointElement>(width);
-    state.windowSize[1] = static_cast<PointElement>(height);
+    state.windowSize[0] = static_cast<std::uint32_t>(width);
+    state.windowSize[1] = static_cast<std::uint32_t>(height);
 
     state.resetState();
 
@@ -162,13 +203,19 @@ void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int
             windowSizeCallback(state.window, 512, 512);
             glfwSetWindowSize(state.window, 512, 512);
         }
+    break;
+        case GLFW_MOUSE_BUTTON_5: // toggle shader use
+        if (action == GLFW_PRESS)
+        {
+            state.useShaders = !state.useShaders;
+        }
     }
     state.keyChanged = true;
 }
 void MortonDemo::cursorPositionIndirect(GLFWwindow* w, double x, double y)
 {
-    state.cursorPos[0] = static_cast<PointElement>(x);
-    state.cursorPos[1] = static_cast<PointElement>(y);
+    state.cursorPos[0] = static_cast<std::uint32_t>(x);
+    state.cursorPos[1] = static_cast<std::uint32_t>(y);
     state.keyChanged = true;
 }
 
@@ -192,6 +239,40 @@ void MortonDemo::cursorPositionCallback(GLFWwindow* w, double x, double y)
 
 //------------------------------------------------------------------------------
 
+void MortonDemo::writeLogFile()
+{
+    std::ofstream ost("log.txt");
+    ost << log.rdbuf();
+}
+
+void MortonDemo::createShaders()
+{
+    hatchAreaShader.createProgram();
+    searchedShader.createProgram();
+
+    hatchAreaShader.shaderFromFile
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\vertPassThrough.glsl",
+            GL_VERTEX_SHADER);
+    hatchAreaShader.shaderFromFile
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\geomHatchArea.glsl",
+            GL_GEOMETRY_SHADER);
+    hatchAreaShader.shaderFromFile
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\fragPassThrough.glsl",
+            GL_FRAGMENT_SHADER);
+
+    searchedShader.shaderFromFile
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\vertPassThrough.glsl",
+            GL_VERTEX_SHADER);
+    searchedShader.shaderFromFile
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\geomSearched.glsl",
+            GL_GEOMETRY_SHADER);
+    searchedShader.shaderFromFile
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\fragPassThrough.glsl",
+            GL_FRAGMENT_SHADER);
+}
+
+//------------------------------------------------------------------------------
+
 void MortonDemo::initializeDemo()
 {
     Point& windowSize = state.windowSize;
@@ -210,9 +291,9 @@ void MortonDemo::initializeDemo()
     glfwSwapInterval(1);
     glfwMakeContextCurrent(state.window);
 
-    if (auto fail = glewInit())
+    if (auto failure = glewInit())
     {
-        std::cerr << glewGetErrorString(fail) << std::endl;
+        log << glewGetErrorString(failure) << std::endl;
 
         throw std::runtime_error("glewInit failed");
     }
@@ -225,21 +306,21 @@ void MortonDemo::initializeDemo()
     glGenBuffers(1, &state.searchedColors.vboID);
     glGenBuffers(1, &state.searchedPoints.vboID);
 
-    clean = std::shared_ptr<void>(this, [](void* ptr) // RAII :D
+    createShaders();
+
+    finally = [&](SharedExit* self)
     {
-        MortonDemo* self = static_cast<MortonDemo*>(ptr);
+        glDeleteBuffers(1, &state.backgroundColors.vboID);
+        glDeleteBuffers(1, &state.backgroundPoints.vboID);
 
-        glDeleteBuffers(1, &self->state.backgroundColors.vboID);
-        glDeleteBuffers(1, &self->state.backgroundPoints.vboID);
+        glDeleteBuffers(1, &state.hatchAreaColors.vboID);
+        glDeleteBuffers(1, &state.hatchAreaPoints.vboID);
 
-        glDeleteBuffers(1, &self->state.hatchAreaColors.vboID);
-        glDeleteBuffers(1, &self->state.hatchAreaPoints.vboID);
-
-        glDeleteBuffers(1, &self->state.searchedColors.vboID);
-        glDeleteBuffers(1, &self->state.searchedPoints.vboID);
+        glDeleteBuffers(1, &state.searchedColors.vboID);
+        glDeleteBuffers(1, &state.searchedPoints.vboID);
 
         glfwTerminate();
-    });
+    };
     glfwSetWindowUserPointer(state.window, this);
     glfwSetCursorPosCallback(state.window, cursorPositionCallback);
     glfwSetWindowSizeCallback(state.window, windowSizeCallback);
@@ -282,12 +363,14 @@ void MortonDemo::mainLoop()
     }
     catch (std::runtime_error const& error)
     {
-        std::cerr << error.what() << std::endl;
-
         glfwTerminate();
+
+        log << error.what() << std::endl;
+        writeLogFile();
     }
     catch (std::exception const& error)
     {
-        std::cerr << error.what() << std::endl;
+        log << error.what() << std::endl;
+        writeLogFile();
     }
 }
