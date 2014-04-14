@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 150
 
 void main(void)
 {
