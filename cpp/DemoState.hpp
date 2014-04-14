@@ -6,25 +6,19 @@
 #include <vector>
 #include <array>
 
+struct GLFWwindow;
+
 // ApEk,
 // NoAvailableAlias
 // this code is public domain
 
 using Color = std::array<float, 3>;
 
-struct GLFWwindow;
-
 class DemoState
 {
-    void updateBackground();
-    void updateHatchArea();
-    void updateSearched();
-
-    public:
-
     template <typename T> struct VboWrapper
     {
-        PointElement vboID =0;
+        std::uint32_t vboID = 0;
         std::vector<T> buffer;
 
         std::size_t size() const
@@ -32,6 +26,12 @@ class DemoState
             return buffer.size() * sizeof(T);
         }
     };
+
+    void updateBackground();
+    void updateHatchArea();
+    void updateSearched();
+
+    public:
 
     Point pressPos = {{}};
     Point cursorPos = {{}};
@@ -42,6 +42,7 @@ class DemoState
     bool keyChanged = false;
 
     bool bigminFlag = false;
+    bool useShaders = false;
 
     GLFWwindow* window = nullptr;
 
