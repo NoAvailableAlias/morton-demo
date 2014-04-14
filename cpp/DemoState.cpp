@@ -99,11 +99,6 @@ static void search(PT const& Min,
 
 //------------------------------------------------------------------------------
 
-float toRange(std::size_t X, std::size_t A, std::size_t B, float C, float D)
-{
-    return (X - A) / (float)(B - A) * (D - C) + C;
-}
-
 void DemoState::updateBackground()
 {
     auto xMax = windowSize[0];
@@ -123,7 +118,7 @@ void DemoState::updateBackground()
             backgroundPoints.buffer[i][1] = y;
 
             backgroundColors.buffer[i][2] =
-                toRange(i, 0, sMax, 0.2f, 1.0f);
+                (i / float(sMax) * 0.8f + 0.2f);
         }
     }
     std::sort(backgroundPoints.buffer.begin(),
@@ -185,21 +180,19 @@ void DemoState::updateTick()
     searchedColors.buffer.clear();
     searchedPoints.buffer.clear();
 
-    float kmin = 0.1f;
-
-    if (bigminFlag)
-    {
-        bigalg<Point>(min, max, backgroundPoints.buffer,
-                                hatchAreaPoints.buffer,
-                                searchedPoints.buffer);
-        kmin = 0.5f;
-    }
-    else
+    if (bigminFlag == false)
     {
         search<Point>(min, max, backgroundPoints.buffer,
                                 hatchAreaPoints.buffer,
                                 searchedPoints.buffer);
     }
+    else
+    {
+        bigalg<Point>(min, max, backgroundPoints.buffer,
+                                hatchAreaPoints.buffer,
+                                searchedPoints.buffer);
+    }
+    if (useShaders == false)
     {
         std::size_t size = hatchAreaPoints.buffer.size();
         std::size_t i = 0;
@@ -208,9 +201,10 @@ void DemoState::updateTick()
 
         for (Color& color : hatchAreaColors.buffer) // hotspot #2
         {
-            color[0] = toRange(i++, 0, size, kmin, 1.0f);
+            color[0] = (i++ / float(size) * 0.9f + 0.1f);
         }
     }
+    if (useShaders == false)
     {
         std::size_t size = searchedPoints.buffer.size();
         std::size_t i = 0;
@@ -219,7 +213,7 @@ void DemoState::updateTick()
 
         for (Color& color : searchedColors.buffer) // hotspot #3
         {
-            color[1] = toRange(i++, 0, size, 0.1f, 1.0f);
+            color[1] = (i++ / float(size) * 0.9f + 0.1f);
         }
     }
     updateHatchArea();
