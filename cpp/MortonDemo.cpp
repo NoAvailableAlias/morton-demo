@@ -245,29 +245,29 @@ void MortonDemo::writeLogFile()
     ost << log.rdbuf();
 }
 
-void MortonDemo::createShaders()
+void MortonDemo::createShaders() // must change absolute paths
 {
     hatchAreaShader.createProgram();
     searchedShader.createProgram();
 
     hatchAreaShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\vertPassThrough.glsl",
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\vertPassThrough.glsl",
             GL_VERTEX_SHADER);
     hatchAreaShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\geomHatchArea.glsl",
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\geomHatchArea.glsl",
             GL_GEOMETRY_SHADER);
     hatchAreaShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\fragPassThrough.glsl",
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\fragPassThrough.glsl",
             GL_FRAGMENT_SHADER);
 
     searchedShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\vertPassThrough.glsl",
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\vertPassThrough.glsl",
             GL_VERTEX_SHADER);
     searchedShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\geomSearched.glsl",
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\geomSearched.glsl",
             GL_GEOMETRY_SHADER);
     searchedShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\glsl\\fragPassThrough.glsl",
+        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\fragPassThrough.glsl",
             GL_FRAGMENT_SHADER);
 }
 
