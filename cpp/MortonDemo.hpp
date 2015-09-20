@@ -47,10 +47,12 @@ class MortonDemo
 
     void windowSizeIndirect(GLFWwindow*, int, int);
     void cursorButtonIndirect(GLFWwindow*, int, int, int);
+	void cursorScrollIndirect(GLFWwindow*, double, double);
     void cursorPositionIndirect(GLFWwindow*, double, double);
 
     static void windowSizeCallback(GLFWwindow*, int, int);
     static void cursorButtonCallback(GLFWwindow*, int, int, int);
+	static void cursorScrollCallback(GLFWwindow*, double, double);
     static void cursorPositionCallback(GLFWwindow*, double, double);
 
     void writeLogFile();

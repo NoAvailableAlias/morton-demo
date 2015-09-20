@@ -200,8 +200,8 @@ void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int
         case GLFW_MOUSE_BUTTON_4: // reset window size
         if (action == GLFW_PRESS)
         {
-            windowSizeCallback(state.window, 512, 512);
-            glfwSetWindowSize(state.window, 512, 512);
+            windowSizeCallback(w, 512, 512);
+            glfwSetWindowSize(w, 512, 512);
         }
     break;
         case GLFW_MOUSE_BUTTON_5: // toggle shader use
@@ -211,6 +211,18 @@ void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int
         }
     }
     state.keyChanged = true;
+}
+void MortonDemo::cursorScrollIndirect(GLFWwindow* w, double x, double y)
+{
+	// Don't become microscopic or the universe
+	if ((state.windowSize[0] > 256 || y < 0) &&
+		(state.windowSize[1] < 1024 || y > 0))
+	{
+		int adjust = (y < 0) ? state.windowSize[0] * 2 : state.windowSize[0] / 2;
+
+		windowSizeCallback(w, adjust, adjust);
+		glfwSetWindowSize(w, adjust, adjust);
+	}
 }
 void MortonDemo::cursorPositionIndirect(GLFWwindow* w, double x, double y)
 {
@@ -230,6 +242,11 @@ void MortonDemo::cursorButtonCallback(GLFWwindow* w, int button, int action, int
 {
     MortonDemo* self = static_cast<MortonDemo*>(glfwGetWindowUserPointer(w));
     self->cursorButtonIndirect(w, button, action, mods);
+}
+void MortonDemo::cursorScrollCallback(GLFWwindow* w, double x, double y)
+{
+	MortonDemo* self = static_cast<MortonDemo*>(glfwGetWindowUserPointer(w));
+	self->cursorScrollIndirect(w, x, y);
 }
 void MortonDemo::cursorPositionCallback(GLFWwindow* w, double x, double y)
 {
@@ -322,6 +339,7 @@ void MortonDemo::initializeDemo()
         glfwTerminate();
     };
     glfwSetWindowUserPointer(state.window, this);
+	glfwSetScrollCallback(state.window, cursorScrollCallback);
     glfwSetCursorPosCallback(state.window, cursorPositionCallback);
     glfwSetWindowSizeCallback(state.window, windowSizeCallback);
     glfwSetMouseButtonCallback(state.window, cursorButtonCallback);
