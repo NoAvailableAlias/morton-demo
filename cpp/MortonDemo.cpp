@@ -150,7 +150,7 @@ void MortonDemo::displayFps() const
     if (1000000 < std::chrono::duration_cast<Micro>
         (std::chrono::high_resolution_clock::now() - delta).count())
     {
-        std::string title("Morton Order Demo : ");
+        std::string title("Z-order : ");
         title += std::to_string(fps) + " FPS";
         glfwSetWindowTitle(state.window, title.c_str());
         delta = std::chrono::high_resolution_clock::now();
@@ -207,7 +207,7 @@ void MortonDemo::cursorButtonIndirect(GLFWwindow* w, int button, int action, int
         case GLFW_MOUSE_BUTTON_5: // toggle shader use
         if (action == GLFW_PRESS)
         {
-            state.useShaders = !state.useShaders;
+            //state.useShaders = !state.useShaders;
         }
     }
     state.keyChanged = true;
@@ -247,28 +247,28 @@ void MortonDemo::writeLogFile()
 
 void MortonDemo::createShaders() // must change absolute paths
 {
-    hatchAreaShader.createProgram();
-    searchedShader.createProgram();
+    //hatchAreaShader.createProgram();
+    //searchedShader.createProgram();
 
-    hatchAreaShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\vertPassThrough.glsl",
-            GL_VERTEX_SHADER);
-    hatchAreaShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\geomHatchArea.glsl",
-            GL_GEOMETRY_SHADER);
-    hatchAreaShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\fragPassThrough.glsl",
-            GL_FRAGMENT_SHADER);
+    //hatchAreaShader.shaderFromFile
+    //    ("C:\\Projects\\morton-demo\\cpp\\glsl\\vertPassThrough.glsl",
+    //        GL_VERTEX_SHADER);
+    //hatchAreaShader.shaderFromFile
+    //    ("C:\\Projects\\morton-demo\\cpp\\glsl\\geomHatchArea.glsl",
+    //        GL_GEOMETRY_SHADER);
+    //hatchAreaShader.shaderFromFile
+    //    ("C:\\Projects\\morton-demo\\cpp\\glsl\\fragPassThrough.glsl",
+    //        GL_FRAGMENT_SHADER);
 
-    searchedShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\vertPassThrough.glsl",
-            GL_VERTEX_SHADER);
-    searchedShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\geomSearched.glsl",
-            GL_GEOMETRY_SHADER);
-    searchedShader.shaderFromFile
-        ("C:\\Users\\ApEk\\Local\\morton-demo\\cpp\\glsl\\fragPassThrough.glsl",
-            GL_FRAGMENT_SHADER);
+    //searchedShader.shaderFromFile
+    //    ("C:\\Projects\\morton-demo\\cpp\\glsl\\vertPassThrough.glsl",
+    //        GL_VERTEX_SHADER);
+    //searchedShader.shaderFromFile
+    //    ("C:\\Projects\\morton-demo\\cpp\\glsl\\geomSearched.glsl",
+    //        GL_GEOMETRY_SHADER);
+    //searchedShader.shaderFromFile
+    //    ("C:\\Projects\\morton-demo\\cpp\\glsl\\fragPassThrough.glsl",
+    //        GL_FRAGMENT_SHADER);
 }
 
 //------------------------------------------------------------------------------

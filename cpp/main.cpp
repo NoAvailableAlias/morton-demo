@@ -1,11 +1,7 @@
 #include "MortonDemo.hpp"
 
-#ifdef _MSC_VER // THANKS OBAMA
-  #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-#endif
-
 /** Dependencies:
-    OpenGL 3.2 support
+    OpenGL 3.2 or >
     GLFW 3.0.4 or >
     Glew 1.10 or >
     C++11
@@ -23,6 +19,7 @@
     Performance seems to be bound by CPU -> GPU transfer rates.
     Preliminary results show bigalg<>() being slower than search<>().
         *However I think performance would be better for higher dimensions.
+		*Also seems to perform better on new hardware / compilers
 */
 
 int main()
