@@ -1,11 +1,10 @@
-#ifndef MORTON_DEMO_HPP
-#define MORTON_DEMO_HPP
+#pragma once
+
+#include <memory>
+#include <sstream>
 
 #include "ShaderProgram.hpp"
 #include "DemoState.hpp"
-
-#include <sstream>
-#include <memory>
 
 struct GLFWwindow;
 
@@ -63,5 +62,3 @@ class MortonDemo
 
     void mainLoop();
 };
-
-#endif // MORTON_DEMO_HPP

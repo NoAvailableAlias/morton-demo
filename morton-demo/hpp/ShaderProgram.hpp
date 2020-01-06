@@ -1,10 +1,9 @@
-#ifndef SHADER_PROGRAM_HPP
-#define SHADER_PROGRAM_HPP
-
-#include <GL/glew.h>
+#pragma once
 
 #include <string>
 #include <vector>
+
+#include <GL/glew.h>
 
 class ShaderProgram
 {
@@ -40,5 +39,3 @@ class ShaderProgram
     void programBegin() const;
     void programEnd() const;
 };
-
-#endif // SHADER_PROGRAM_HPP

@@ -1,10 +1,9 @@
-#ifndef DEMO_STATE_HPP
-#define DEMO_STATE_HPP
+#pragma once
+
+#include <array>
+#include <vector>
 
 #include "Point.hpp"
-
-#include <vector>
-#include <array>
 
 struct GLFWwindow;
 
@@ -58,5 +57,3 @@ class DemoState
     void resetState();
     void updateTick();
 };
-
-#endif // DEMO_STATE_HPP

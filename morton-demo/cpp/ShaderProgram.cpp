@@ -1,14 +1,13 @@
-#include "ShaderProgram.hpp"
+#include <algorithm>
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <vector>
 
 #include <GL/glew.h>
 
-#include <exception>
-#include <iostream>
-
-#include <algorithm>
-#include <iterator>
-#include <fstream>
-#include <vector>
+#include "../hpp/ShaderProgram.hpp"
 
 void ShaderProgram::Shader::compileShader() const
 {

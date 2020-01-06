@@ -1,14 +1,14 @@
-#include "MortonDemo.hpp"
-#include "Point.hpp"
+#include <chrono>
+#include <exception>
+#include <fstream>
+#include <memory>
+#include <thread>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <exception>
-#include <fstream>
-#include <chrono>
-#include <memory>
-#include <thread>
+#include "../hpp/MortonDemo.hpp"
+#include "../hpp/Point.hpp"
 
 #ifndef _MSC_VER
   #include <unistd.h> // MinGW workaround

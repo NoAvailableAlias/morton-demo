@@ -1,6 +1,7 @@
-#include "MortonDemo.hpp"
+#include "../hpp/MortonDemo.hpp"
 
-/** Dependencies:
+/*
+    Dependencies:
     OpenGL 3.2 or >
     GLFW 3.0.4 or >
     Glew 1.10 or >
@@ -19,8 +20,18 @@
     Performance seems to be bound by CPU -> GPU transfer rates.
     Preliminary results show bigalg<>() being slower than search<>().
         *However I think performance would be better for higher dimensions.
-		*Also seems to perform better on new hardware / compilers
+        *Also seems to perform better on new hardware / compilers
 */
+
+#ifdef GLEW_STATIC
+#  define GLEWAPI extern
+#else
+#  ifdef GLEW_BUILD
+#    define GLEWAPI extern __declspec(dllexport)
+#  else
+#    define GLEWAPI extern __declspec(dllimport)
+#  endif
+#endif
 
 int main()
 {

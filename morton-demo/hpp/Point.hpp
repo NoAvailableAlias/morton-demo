@@ -1,8 +1,7 @@
-#ifndef POINT_HPP
-#define POINT_HPP
+#pragma once
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
 // ApEk,
 // NoAvailableAlias
@@ -35,12 +34,8 @@ template <typename PT> struct morton
 #else
         std::size_t x = lhs[0] ^ rhs[0];
         std::size_t y = lhs[1] ^ rhs[1];
-
-        if ((x < y) && (x < (x ^ y)))
-        {
-            return lhs[1] < rhs[1];
-        }
-        return lhs[0] < rhs[0];
+        auto k = (x < y) && x < (x ^ y);
+        return lhs[k] < rhs[k];
 #endif
     }
 };
@@ -103,7 +98,7 @@ Point z_decode(std::size_t r)
         if (r & b) y |= m; b <<= 1;
         if (r & b) x |= m; b <<= 1;
     }
-    return {{ x, y }};
+    return { static_cast<std::uint32_t>(x), static_cast<std::uint32_t>(y) };
 }
 
 } // anonymous namespace ------------------------------------------------------
@@ -139,5 +134,3 @@ template <typename PT> PT bigmin(PT const& min, PT const& max, PT const& rhs)
     }
     return z_decode(retv);
 }
-
-#endif // POINT_HPP
